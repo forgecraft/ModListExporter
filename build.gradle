@@ -3,7 +3,8 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.80'
+    id 'net.neoforged.gradle.userdev' version '7.0.154'
+    id "me.modmuss50.mod-publish-plugin" version "0.5.2"
 }
 
 version = mod_version
@@ -15,10 +16,10 @@ repositories {
 
 base {
     archivesName = mod_id
+
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 runs {
     // applies to all the run configs below
@@ -62,7 +63,7 @@ tasks.withType(ProcessResources).configureEach {
     ]
     inputs.properties replaceProperties
 
-    filesMatching(['META-INF/mods.toml']) {
+    filesMatching(['META-INF/neoforge.mods.toml']) {
         expand replaceProperties + [project: project]
     }
 }
@@ -74,12 +75,50 @@ publishing {
         }
     }
     repositories {
-        maven {
-            url "file://${project.projectDir}/repo"
+        def token = providers.environmentVariable("GITHUB_TOKEN")
+        if (token.isPresent()) {
+            maven {
+                name = "GitHubPackages"
+                url = "https://maven.pkg.github.com/forgecraft/ModListExporter"
+                credentials {
+                    username = providers.environmentVariable("GITHUB_ACTOR").get()
+                    password = token.get()
+                }
+            }
+        } else {
+            println("GitHub token not found, skipping GitHub Packages repository")
+        }
+
+        def sapsToken = providers.environmentVariable("SAPS_TOKEN")
+        if (sapsToken.isPresent()) {
+            maven {
+                name = "MikeysSapsMavenRepository"
+                url = "https://maven.saps.dev/releases"
+                credentials {
+                    username = "forgecraft"
+                    password = sapsToken.get()
+                }
+            }
+        } else {
+            println("SAPS token not found, skipping SAPS repository")
         }
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+publishMods {
+    dryRun = providers.environmentVariable("GITHUB_TOKEN").getOrNull() == null
+    file = tasks.jar.archiveFile
+    changelog = ""
+    type = STABLE
+
+    github {
+        repository = "forgecraft/ModListExporter"
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        commitish = providers.environmentVariable("GITHUB_SHA").orElse("dryRun")
+        tagName = providers.environmentVariable("GITHUB_REF_NAME").orElse("dryRun")
+    }
 }

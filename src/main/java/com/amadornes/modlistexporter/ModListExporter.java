@@ -1,15 +1,15 @@
-package com.example.examplemod;
+package com.amadornes.modlistexporter;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.i18n.MavenVersionTranslator;
 import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.common.util.MavenVersionStringHelper;
 import net.neoforged.neoforgespi.language.IModInfo;
 
 import java.io.IOException;
@@ -33,10 +33,10 @@ public class ModListExporter {
             .setPrettyPrinting()
             .create();
 
-    public ModListExporter(IEventBus modEventBus) {
+    public ModListExporter(IEventBus modEventBus, ModContainer container) {
         modEventBus.addListener(this::commonSetup);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        container.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
@@ -74,13 +74,14 @@ public class ModListExporter {
 
     public record JsonModList(List<ModInfo> mods) {
 
-        public record ModInfo(String id, String name, String version) {
+        public record ModInfo(String id, String name, String version, String summary) {
 
             public ModInfo(IModInfo mod) {
                 this(
                         mod.getModId(),
                         mod.getDisplayName(),
-                        MavenVersionStringHelper.artifactVersionToString(mod.getVersion())
+                        mod.getDescription(),
+                        MavenVersionTranslator.artifactVersionToString(mod.getVersion())
                 );
             }
 
