@@ -11,6 +11,8 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.i18n.MavenVersionTranslator;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforgespi.language.IModInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.CopyOption;
@@ -25,6 +27,8 @@ import static java.nio.file.StandardOpenOption.WRITE;
 
 @Mod(ModListExporter.MODID)
 public class ModListExporter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModListExporter.class);
 
     public static final String MODID = "modlistexporter";
 
@@ -48,6 +52,7 @@ public class ModListExporter {
             var modList = gatherModList();
             writeModList(modList);
         } catch (IOException e) {
+            LOGGER.error("Failed to write mod list", e);
             throw new RuntimeException(e);
         }
     }
@@ -80,8 +85,8 @@ public class ModListExporter {
                 this(
                         mod.getModId(),
                         mod.getDisplayName(),
-                        mod.getDescription(),
-                        MavenVersionTranslator.artifactVersionToString(mod.getVersion())
+                        MavenVersionTranslator.artifactVersionToString(mod.getVersion()),
+                        mod.getDescription().trim()
                 );
             }
 
