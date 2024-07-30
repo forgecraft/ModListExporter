@@ -79,14 +79,15 @@ public class ModListExporter {
 
     public record JsonModList(List<ModInfo> mods) {
 
-        public record ModInfo(String id, String name, String version, String summary) {
+        public record ModInfo(String id, String name, String version, String summary, String authors) {
 
             public ModInfo(IModInfo mod) {
                 this(
                         mod.getModId(),
                         mod.getDisplayName(),
                         MavenVersionTranslator.artifactVersionToString(mod.getVersion()),
-                        mod.getDescription().trim()
+                        mod.getDescription().trim(),
+                        mod.getConfig().getConfigElement("authors").map(Object::toString).orElse(null)
                 );
             }
 
