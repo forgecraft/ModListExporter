@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@EventBusSubscriber(modid = ModListExporter.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ModListExporter.MODID)
 public class Config
 {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
