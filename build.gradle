@@ -2,8 +2,8 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.115'
-    id "me.modmuss50.mod-publish-plugin" version "1.0.0"
+    id 'net.neoforged.moddev' version '2.0.141'
+    id "me.modmuss50.mod-publish-plugin" version "1.1.0"
 }
 
 
@@ -22,15 +22,10 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 neoForge {
     version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
 
     runs {
         // applies to all the run configs below
@@ -115,22 +110,6 @@ publishing {
                     password = token.get()
                 }
             }
-        } else {
-            println("GitHub token not found, skipping GitHub Packages repository")
-        }
-
-        def sapsToken = providers.environmentVariable("SAPS_TOKEN")
-        if (sapsToken.isPresent()) {
-            maven {
-                name = "MikeysSapsMavenRepository"
-                url = "https://maven.saps.dev/releases"
-                credentials {
-                    username = "forgecraft"
-                    password = sapsToken.get()
-                }
-            }
-        } else {
-            println("SAPS token not found, skipping SAPS repository")
         }
     }
 }
