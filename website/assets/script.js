@@ -1,5 +1,5 @@
 function loadList() {
-  fetch("modlist.json")
+  fetch("/modlist.json")
     .then(res => res.json())
     .then(onListLoaded)
     .catch(err => { throw err; });
@@ -19,9 +19,10 @@ function onListLoaded(json) {
   for (let mod of json.mods) {
     var row = rowTemplate.content.cloneNode(true);
     var columns = row.querySelectorAll("td");
-    columns[1].textContent = mod.name;
+    columns[1].innerHTML = mod.name + (mod.summary && "<br /><small style='font-weight: normal; font-size: smaller; color: rgba(0,0,0,0.5)'>" + mod.summary + "</small>");
     columns[1].title = "Mod ID: " + mod.id;
     columns[2].textContent = mod.version;
+    columns[3].textContent = mod.authors ?? ""
     if (mod.download) {
       var download = dlTemplates[mod.download.type].content.cloneNode(true);
       download.href = mod.download.url;
